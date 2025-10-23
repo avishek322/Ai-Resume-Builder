@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Resume Builder | Smart Career Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class', // Enable class-based dark mode
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              'primary': '#0f172a',
+              'secondary': '#64748b',
+              'accent-start': '#3b82f6',
+              'accent-end': '#8b5cf6',
+              'background': '#f8fafc',
+            },
+            animation: {
+              'gradient-x': 'gradient-x 5s ease infinite',
+              'modal-in': 'modal-in 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards',
+              'fade-in': 'fade-in-global 0.5s ease-out forwards',
+              'slide-in': 'slide-in 0.5s ease-out forwards',
+              'shimmer': 'shimmer 1.5s infinite linear',
+            },
+            keyframes: {
+              'gradient-x': {
+                '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                '50%': { 'background-size': '200% 200%', 'background-position': 'right center' },
+              },
+              'modal-in': {
+                '0%': { opacity: '0', transform: 'translateY(-20px) scale(0.95)' },
+                '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+              },
+              'fade-in-global': {
+                'from': { opacity: '0', transform: 'translateY(10px)' },
+                'to': { opacity: '1', transform: 'translateY(0)' },
+              },
+              'slide-in': {
+                'from': { opacity: '0', transform: 'translateX(-20px)' },
+                'to': { opacity: '1', transform: 'translateX(0)' },
+              },
+              'shimmer': {
+                  '0%': { 'background-position': '-1000px 0' },
+                  '100%': { 'background-position': '1000px 0' },
+              },
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Base styles for the dynamically injected resume HTML */
+      .resume-container {
+        font-family: 'Inter', sans-serif;
+        --resume-text-color: #334155; /* slate-700 */
+        --resume-heading-color: #1e293b; /* slate-800 */
+        --resume-secondary-text: #64748b; /* slate-500 */
+        --resume-link-color: #2563eb; /* blue-600 */
+        --resume-border-color: #e2e8f0; /* slate-200 */
+        --resume-tag-bg: #f1f5f9; /* slate-100 */
+        --resume-tag-text: #475569; /* slate-600 */
+        --resume-accent-color: #1e3a8a; /* blue-900 */
+      }
+      .dark .resume-container {
+        --resume-text-color: #cbd5e1; /* slate-300 */
+        --resume-heading-color: #f1f5f9; /* slate-100 */
+        --resume-secondary-text: #94a3b8; /* slate-400 */
+        --resume-link-color: #60a5fa; /* blue-400 */
+        --resume-border-color: #475569; /* slate-600 */
+        --resume-tag-bg: #334155; /* slate-700 */
+        --resume-tag-text: #e2e8f0; /* slate-200 */
+        --resume-accent-color: #bfdbfe; /* blue-200 */
+      }
+      #resume-preview-content {
+        line-height: 1.6;
+      }
+      #resume-preview-content h1, 
+      #resume-preview-content h3, 
+      #resume-preview-content .resume-heading { color: var(--resume-heading-color); }
+      #resume-preview-content, #resume-preview-content p, #resume-preview-content li, #resume-preview-content span, #resume-preview-content div { color: var(--resume-text-color); }
+      #resume-preview-content .resume-secondary-text { color: var(--resume-secondary-text); }
+      #resume-preview-content .resume-border { border-color: var(--resume-border-color); }
+      #resume-preview-content a { color: var(--resume-link-color); text-decoration: none; }
+      #resume-preview-content a:hover { text-decoration: underline; }
+      #resume-preview-content .resume-tag-bg { background-color: var(--resume-tag-bg); }
+      #resume-preview-content .resume-tag-text { color: var(--resume-tag-text); }
+      #resume-preview-content .resume-accent-color { color: var(--resume-accent-color); }
+      #resume-preview-content .resume-accent-bg { background-color: var(--resume-accent-color); }
+      #resume-preview-content .resume-section { margin-bottom: 1.75rem; }
+      #resume-preview-content .section-title {
+          font-size: 1.125rem;
+          font-weight: 700;
+          letter-spacing: 0.025em;
+          text-transform: uppercase;
+      }
+      #resume-preview-content ul { padding-left: 1.25rem; }
+
+      /* Template Specific Styles */
+      /* --- Classic Template --- */
+      .template-classic .section-title {
+        border-bottom: 2px solid var(--resume-border-color);
+        padding-bottom: 0.25rem;
+        margin-bottom: 0.75rem;
+      }
+      .template-classic .resume-header {
+        border-bottom: 1px solid var(--resume-border-color);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      /* --- Modern Template (2-column) --- */
+      .template-modern {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 768px) {
+        .template-modern {
+            grid-template-columns: 1fr 2.5fr;
+            gap: 2rem;
+        }
+      }
+      .template-modern .modern-sidebar {
+        padding: 0;
+      }
+       .template-modern .modern-main {
+        padding-left: 0;
+      }
+       @media (min-width: 768px) {
+        .template-modern .modern-main {
+           padding-left: 1.5rem;
+           border-left: 1px solid var(--resume-border-color);
+        }
+      }
+      .template-modern .section-title {
+          color: var(--resume-accent-color);
+          margin-bottom: 1rem;
+      }
+      .template-modern .resume-header {
+          flex-direction: column;
+          align-items: flex-start;
+          text-align: left;
+      }
+      .dark .template-modern .section-title { color: var(--resume-accent-color); }
+
+      /* --- Creative Template --- */
+      .template-creative .section-title {
+          display: inline-block;
+          background-color: var(--resume-accent-color);
+          color: white;
+          padding: 0.25rem 0.75rem;
+          margin-bottom: 1rem;
+      }
+      .dark .template-creative .section-title {
+        color: #1e293b; /* slate-800 */
+      }
+      .template-creative .resume-header h1 {
+        color: var(--resume-accent-color);
+      }
+
+      /* Animation for Live Preview */
+      .fade-in-section {
+        animation: fadeIn 0.6s ease-in-out forwards;
+        opacity: 0;
+      }
+      
+      .fade-in-section:nth-child(2) { animation-delay: 0.1s; }
+      .fade-in-section:nth-child(3) { animation-delay: 0.2s; }
+      .fade-in-section:nth-child(4) { animation-delay: 0.3s; }
+      .fade-in-section:nth-child(5) { animation-delay: 0.4s; }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Chatbot Typing Indicator */
+      .typing-dot {
+          width: 8px;
+          height: 8px;
+          background-color: #94a3b8; /* slate-400 */
+          border-radius: 50%;
+          animation: typing-flashing 1.4s infinite linear;
+      }
+      .dark .typing-dot {
+          background-color: #64748b; /* slate-500 */
+      }
+      @keyframes typing-flashing {
+          0%, 100% {
+              opacity: 0.2;
+              transform: scale(0.8);
+          }
+          50% {
+              opacity: 1;
+              transform: scale(1);
+          }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.26.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.546.0",
+    "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
+    "jspdf": "https://aistudiocdn.com/jspdf@^2.5.1",
+    "html-to-docx": "https://aistudiocdn.com/html-to-docx@^1.8.0"
+  }
+}
+</script>
+</head>
+  <body class="font-sans bg-background dark:bg-slate-900">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
